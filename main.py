@@ -7,7 +7,7 @@ import io
 
 app = FastAPI()
 
-# Frontend se connect karne ke liye (browser security requirement)
+# To connect Frontend (browser security requirement)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -15,10 +15,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Apna trained model load karo
+# Loading trained model
 model = load_model("plant_disease_model.h5")
 
-# Sahi order mein class names (Kaggle se jo mila tha)
+# Class names in the correct order (as obtained from Kaggle)
 class_names = [
     'Pepper_Bacterial_spot',
     'Pepper_healthy',
