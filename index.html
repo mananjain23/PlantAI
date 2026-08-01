@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PlantAI - Crop Disease Detector</title>
+    <style>
+        body { font-family: Arial; max-width: 500px; margin: 50px auto; text-align: center; }
+        #result { margin-top: 20px; font-size: 18px; }
+        button { padding: 10px 20px; margin-top: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🌿 PlantAI - Leaf Disease Checker</h1>
+    <input type="file" id="imageInput" accept="image/*"><br><br>
+    <img id="preview" style="max-width: 300px; display: none;"><br>
+    <button onclick="checkDisease()">Check Karo</button>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('imageInput').onchange = function(e) {
+            const preview = document.getElementById('preview');
+            preview.src = URL.createObjectURL(e.target.files[0]);
+            preview.style.display = 'block';
+        };
+
+        async function checkDisease() {
+            const fileInput = document.getElementById('imageInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert("Pehle ek photo choose karo!");
+                return;
+            }
+
+            document.getElementById('result').innerHTML = "Checking... ⏳";
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                document.getElementById('result').innerHTML =
+                    `<h2>🦠 Disease: ${data.disease}</h2><p>Confidence: ${data.confidence}%</p>`;
+            } catch (error) {
+                document.getElementById('result').innerHTML = "Error: Backend se connect nahi ho paya. Check karo backend chal raha hai ya nahi.";
+            }
+        }
+    </script>
+</body>
+</html>
