@@ -1,53 +1,107 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>PlantAI - Crop Disease Detector</title>
-    <style>
-        body { font-family: Arial; max-width: 500px; margin: 50px auto; text-align: center; }
-        #result { margin-top: 20px; font-size: 18px; }
-        button { padding: 10px 20px; margin-top: 10px; cursor: pointer; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PlantAI — Field Diagnostic Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>🌿 PlantAI - Leaf Disease Checker</h1>
-    <input type="file" id="imageInput" accept="image/*"><br><br>
-    <img id="preview" style="max-width: 300px; display: none;"><br>
-    <button onclick="checkDisease()">Check!!</button>
-    <div id="result"></div>
+<div class="wrap">
 
-    <script>
-        document.getElementById('imageInput').onchange = function(e) {
-            const preview = document.getElementById('preview');
-            preview.src = URL.createObjectURL(e.target.files[0]);
-            preview.style.display = 'block';
-        };
+  <div class="header-row">
+    <div class="header-text">
+      <div class="eyebrow">PlantAI · Field Diagnostic Tool</div>
+      <h1>Know what's wrong with your crop in seconds.</h1>
+      <p class="sub">Upload a photo of a leaf and get an instant diagnosis with a confidence score and next steps.</p>
+    </div>
+    <!-- Signature illustration: a leaf under diagnostic scan, hand-drawn to match the brand rather than a stock photo -->
+    <svg class="hero-art" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="70" cy="70" r="66" fill="#eef0e4"/>
+      <path d="M70 30c-16 10-30 24-30 46a30 30 0 0 0 60 0c0-22-14-36-30-46Z" fill="#4c7a5e"/>
+      <path d="M70 34v78" stroke="#1f3d2b" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+      <path d="M70 52c-8 3-14 9-16 18M70 70c8 3 14 9 16 18" stroke="#1f3d2b" stroke-width="1.6" stroke-linecap="round" opacity="0.4"/>
+      <circle cx="90" cy="52" r="4" fill="#b8482c" opacity="0.85"/>
+      <circle cx="84" cy="88" r="3" fill="#b8482c" opacity="0.65"/>
+      <circle cx="70" cy="20" r="20" stroke="#1f3d2b" stroke-width="2" opacity="0.5"/>
+      <line x1="85" y1="35" x2="96" y2="46" stroke="#1f3d2b" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+    </svg>
+  </div>
 
-        async function checkDisease() {
-            const fileInput = document.getElementById('imageInput');
-            const file = fileInput.files[0];
+  <div class="crops-row">
+    <div class="crop-chip">
+      <svg viewBox="0 0 32 32"><circle cx="16" cy="19" r="10" fill="#c1432a"/><path d="M16 9c-2-3-6-3-7-1 2 0 4 1 5 3" fill="#4c7a5e"/></svg>
+      <span>Tomato</span>
+    </div>
+    <div class="crop-chip">
+      <svg viewBox="0 0 32 32"><ellipse cx="16" cy="17" rx="10" ry="8" fill="#c99a5b"/><circle cx="12" cy="15" r="1.3" fill="#7a5a34"/><circle cx="19" cy="18" r="1.3" fill="#7a5a34"/><circle cx="15" cy="20" r="1.1" fill="#7a5a34"/></svg>
+      <span>Potato</span>
+    </div>
+    <div class="crop-chip">
+      <svg viewBox="0 0 32 32"><path d="M11 9c6-2 12 1 12 8 0 7-6 11-9 10-4-1-6-6-6-11 0-3 1-6 3-7Z" fill="#4c7a5e"/><path d="M13 9c-1-2-1-4 1-5" stroke="#1f3d2b" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>
+      <span>Pepper</span>
+    </div>
+  </div>
 
-            if (!file) {
-                alert("Choose atleast one image!");
-                return;
-            }
+  <div class="panel">
+    <div class="panel-label">
+      <span>Specimen Input</span>
+      <span class="meta" id="fileMeta"></span>
+    </div>
 
-            document.getElementById('result').innerHTML = "Checking... ⏳";
+    <label class="dropzone" id="dropzone" for="imageInput">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2c-1 3-4 5-4 9a4 4 0 0 0 8 0c0-4-3-6-4-9Z"/><path d="M12 15v7"/></svg>
+      <div class="dz-title" id="dzTitle">Drop a leaf photo here, or click to browse</div>
+      <div class="dz-sub">JPG or PNG · one leaf per specimen</div>
+    </label>
+    <input type="file" id="imageInput" accept="image/*">
 
-            const formData = new FormData();
-            formData.append('file', file);
+    <div class="slide" id="slide">
+      <img id="preview" alt="Uploaded leaf">
+      <div class="corner tl"></div><div class="corner tr"></div>
+      <div class="corner bl"></div><div class="corner br"></div>
+      <div class="scanline" id="scanline"></div>
+    </div>
 
-            try {
-                const response = await fetch('http://127.0.0.1:8000/predict', {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await response.json();
-                document.getElementById('result').innerHTML =
-                    `<h2>🦠 Disease: ${data.disease}</h2><p>Confidence: ${data.confidence}%</p>`;
-            } catch (error) {
-                document.getElementById('result').innerHTML = "Error: Backend can't be reached. Check if it is running or not.";
-            }
-        }
-    </script>
+    <button class="btn" id="analyzeBtn" disabled>Choose a photo to begin</button>
+    <div class="status-line" id="statusLine">
+      <span class="spinner"></span><span id="statusText">Running diagnostic…</span>
+    </div>
+  </div>
+
+  <div class="report panel" id="report">
+    <div class="report-top">
+      <div class="id-block">
+        <div class="panel-label"><span>Diagnostic Output</span></div>
+        <div class="specimen-id" id="specimenIdOut">—</div>
+      </div>
+      <div class="stamp" id="stamp">—</div>
+    </div>
+
+    <div class="disease-name" id="diseaseName">—</div>
+
+    <div class="confidence-row">
+      <div class="label-row">
+        <span class="label">Model confidence</span>
+        <span class="value" id="confValue">0%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" id="confBar"></div></div>
+    </div>
+
+    <div class="rec">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2c-1 3-4 5-4 9a4 4 0 0 0 8 0c0-4-3-6-4-9Z"/><path d="M12 15v7"/></svg>
+      <div class="rec-body">
+        <span class="rec-label">Recommended action</span>
+        <span id="recText">—</span>
+      </div>
+    </div>
+  </div>
+
+  <footer>Built for the AAROH Hackathon 2026 · Team Breach</footer>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
