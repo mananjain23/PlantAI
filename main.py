@@ -8,6 +8,13 @@ import cv2
 import base64
 from fastapi import HTTPException
 
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+
+def contains_face(pil_image):
+    gray = cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGB2GRAY)
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
+    return len(faces) > 0
+
 app = FastAPI()
 
 # To connect Frontend (browser security requirement)
@@ -56,6 +63,12 @@ def looks_like_plant(pil_image):
 async def predict(file: UploadFile):
     image_data = await file.read()
     image = Image.open(io.BytesIO(image_data)).convert("RGB").resize((224, 224))
+
+    if contains_face(image):
+        return {
+            "disease": "No leaf detected — a face was detected in this image",
+            "confidence": 0
+        }
 
     if not looks_like_plant(image):
         return {

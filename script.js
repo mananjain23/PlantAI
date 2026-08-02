@@ -25,8 +25,22 @@ function setMode(mode) {
 
 // Static, plain-language treatment notes — no external API call needed.
 const RECOMMENDATIONS = {
-  healthy: "No action needed. Keep up current watering and spacing to prevent future stress.",
-  default: "Remove and destroy affected leaves. Avoid overhead watering, and apply a suitable fungicide/bactericide as per local agricultural guidance."
+  "Pepper_Bacterial_spot": "Remove infected leaves, avoid overhead watering, and apply a copper-based bactericide. Rotate crops next season.",
+  "Pepper_healthy": "No action needed. Keep up current watering and spacing to prevent future stress.",
+  "Potato_Early_blight": "Remove affected foliage, improve air circulation, and apply a fungicide containing chlorothalonil or mancozeb.",
+  "Potato_Late_blight": "Destroy infected plants immediately to prevent spread. Apply a fungicide with metalaxyl and avoid overhead irrigation.",
+  "Potato_healthy": "No action needed. Keep up current watering and spacing to prevent future stress.",
+  "Tomato_Bacterial_spot": "Remove infected leaves, avoid working with wet plants, and apply a copper-based bactericide.",
+  "Tomato_Early_blight": "Remove lower infected leaves, mulch around the base, and apply a fungicide with chlorothalonil.",
+  "Tomato_Late_blight": "Destroy infected plants immediately — this spreads fast. Apply a fungicide with metalaxyl or mancozeb.",
+  "Tomato_Leaf_Mold": "Improve greenhouse/field ventilation to reduce humidity, and apply a fungicide labeled for leaf mold.",
+  "Tomato_Septoria_leaf_spot": "Remove infected lower leaves, avoid overhead watering, and apply a fungicide containing chlorothalonil.",
+  "Tomato_Spider_mites": "Spray with insecticidal soap or neem oil, and increase humidity around plants to discourage mites.",
+  "Tomato_Target_Spot": "Remove infected leaves and apply a fungicide with chlorothalonil or azoxystrobin.",
+  "Tomato_YellowLeaf_Curl_Virus": "Remove and destroy infected plants — this is whitefly-transmitted. Control whitefly populations with insecticide or netting.",
+  "Tomato_mosaic_virus": "Remove and destroy infected plants immediately. Disinfect tools between plants — this virus spreads by contact.",
+  "Tomato_healthy": "No action needed. Keep up current watering and spacing to prevent future stress.",
+  "default": "Consult a local agricultural extension worker for specific treatment guidance."
 };
 
 let specimenId = "";
@@ -142,9 +156,9 @@ function renderReport(data) {
   }
 
   document.getElementById('recText').textContent =
-    confidence < 60
-      ? "Confidence is low — retake the photo in even lighting with the leaf filling the frame, then try again."
-      : (isHealthy ? RECOMMENDATIONS.healthy : RECOMMENDATIONS.default);
+  confidence < 60
+    ? "Confidence is low — retake the photo in even lighting with the leaf filling the frame, then try again."
+    : (RECOMMENDATIONS[data.disease] || RECOMMENDATIONS.default);
 
   requestAnimationFrame(() => {
     document.getElementById('confBar').style.width = Math.min(confidence, 100) + '%';
