@@ -332,3 +332,28 @@
     .report.show{ animation:none !important; }
     .spinner{ animation:none !important; }
   }
+
+  .mode-toggle {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0 16px;
+}
+.mode-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.15);
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+}
+.mode-btn.active {
+  background: #4c7a5e;
+  color: #fff;
+  border-color: #4c7a5e;
+}
+.heatmap-img {
+  width: 100%;
+  border-radius: 10px;
+  margin: 12px 0;
+}
